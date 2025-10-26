@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = env("DATABASE_PROVIDER")
+  url      = env("DATABASE_URL")
+}
+
+model Donation {
+  id                       String         @id @default(cuid())
+  createdAt                DateTime       @default(now())
+  amountCents              Int
+  currency                 String         @default("CAD")
+  fund                     String
+  donorEmail               String
+  recurring                Boolean        @default(false)
+  processor                String         @default("stripe")
+  processorCheckoutId      String
+  processorPaymentIntentId String?        @unique
+  status                   DonationStatus @default(PENDING)
+  receiptEmailSent         Boolean        @default(false)
+}
+
+enum DonationStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+}
+
+model Admin {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model WebhookEvent {
+  id         String   @id @default(cuid())
+  receivedAt DateTime @default(now())
+  type       String
+  rawJson    Json
+}
